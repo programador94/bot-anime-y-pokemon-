@@ -1,0 +1,82 @@
+import discord
+from discord.ext import commands
+import random
+import requests
+
+intents = discord.Intents.default()
+intents.message_content = True
+
+bot = commands.Bot(command_prefix="/",intents=intents)
+
+@bot.event
+async def on_ready():
+    print(f"Hemos iniciado sesión como {bot.user}")
+@bot.command()
+async def hola(ctx):
+    await ctx.send('¡Hola! ¿Cómo estás?')
+@bot.command()
+async def adios(ctx):
+    await ctx.send('¡Adiós! Cuídate.')
+@bot.command()
+async def suma(ctx,num1:int,num2:int):
+    suma = num1 + num2
+    await ctx.send(f"la suma de {num1} + {num2} = {suma}")     
+@bot.command()
+async def resta(ctx,num1:int,num2:int):
+    resta = num1 - num2
+    await ctx.send(f"la resta de {num1} - {num2} = {resta}")    
+@bot.command()
+async def multiplicacion(ctx,num1:int,num2:int):
+    multiplicacion = num1 * num2
+    await ctx.send(f"la multiplicacion de {num1} * {num2} = {multiplicacion}")     
+@bot.command()
+async def divicion(ctx,num1:int,num2:int):
+    divicion = num1 / num2
+    await ctx.send(f"la divicion de {num1} / {num2} = {divicion}")
+@bot.command()
+async def meme(ctx):
+    files = []
+    for filename in ['1er chatbot/images/mem1.jpg', '1er chatbot/images/mem3.jpg', '1er chatbot/images/mem2.jpg']:
+        try:
+            with open(filename, 'rb') as f:
+                files.append(discord.File(f))
+        except FileNotFoundError:
+            await ctx.send(f'Error: No se encontró el archivo {filename}.')
+            return
+
+    for file in files:
+        await ctx.send(file=file)
+
+# Función para obtener la URL de una imagen de Pokémon
+def get_pokemon_image_url():
+    pokemon_id = random.randint(1, 151)  # Elegir un Pokémon aleatorio de los primeros 151
+    url = f'https://pokeapi.co/api/v2/pokemon/{pokemon_id}'
+    res = requests.get(url)
+    data = res.json()
+    return data['sprites']['front_default']
+
+# Función para obtener la URL de una imagen de anime
+def get_anime_image_url():
+    url = 'https://kitsu.io/api/edge/anime?filter[text]=tokyo'
+    res = requests.get(url)
+    data = res.json()
+    anime = random.choice(data['data'])
+    return anime['attributes']['posterImage']['original']
+
+# Comando del bot para enviar una imagen de Pokémon
+@bot.command(name='pokemon')
+async def pokemon(ctx):
+    '''Una vez que llamamos al comando pokemon,
+    el programa llama a la función get_pokemon_image_url'''
+    image_url = get_pokemon_image_url()
+    await ctx.send(image_url)
+
+# Comando del bot para enviar una imagen de anime
+@bot.command(name='anime')
+async def anime(ctx):
+    '''Una vez que llamamos al comando anime,
+    el programa llama a la función get_anime_image_url'''
+    image_url = get_anime_image_url()
+    await ctx.send(image_url)
+
+bot.run("")
